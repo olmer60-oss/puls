@@ -1,0 +1,45 @@
+<%#-- Covenant: письмо за 3 дня до срока / просрочка ++#%>
+<table <%= placeholder_table_styles %>>
+  <tr>
+    <%= placeholder_cell("20px", vertical: false) %>
+  </tr>
+</table>
+
+<table <%= placeholder_table_styles(width: "100%", style: "width:100%;max-width:700px;") %>>
+  <tr>
+    <%= placeholder_cell("12px", vertical: true) %>
+    <td>
+      <%
+        summary_key = @kind == "overdue" ? "covenant.mail.due.summary_overdue" : "covenant.mail.due.summary_soon"
+      %>
+      <%= render partial: "mailer/mailer_header",
+                 locals: {
+                   summary: I18n.t(summary_key, date: @work_package.due_date, days: CovenantDueMail.soon_days),
+                   button_href: details_notifications_url(@work_package, tab: :activity),
+                   button_text: I18n.t(:"mail.notification.see_in_center"),
+                   user: @user
+                 } %>
+
+      <table <%= placeholder_table_styles(width: "100%", style: "width:100%;") %>>
+        <tr>
+          <td style="<%= placeholder_text_styles %>">
+            <%= render partial: "work_package_details", locals: { work_package: @work_package } %>
+          </td>
+        </tr>
+      </table>
+
+      <%= render partial: "mailer/notification_settings_table",
+                 locals: {
+                   button_url: my_notifications_url(tab: "reminders"),
+                   button_text: I18n.t(:"mail.notification.settings")
+                 } %>
+
+      <table>
+        <tr>
+          <%= placeholder_cell("40px", vertical: false) %>
+        </tr>
+      </table>
+    </td>
+    <%= placeholder_cell("12px", vertical: true) %>
+  </tr>
+</table>

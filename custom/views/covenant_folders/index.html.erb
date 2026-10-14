@@ -1,0 +1,64 @@
+<% html_title "Папки", @project.name %>
+
+<%=
+  render(Primer::OpenProject::PageHeader.new) do |header|
+    header.with_title { "Папки" }
+    header.with_description { "#{@project.name} · Предприятие: #{@ad_org_label}" }
+    header.with_breadcrumbs(
+      [
+        { href: projects_path, text: I18n.t(:label_project_plural) },
+        { href: project_path(@project), text: @project.name },
+        "Папки"
+      ]
+    )
+  end
+%>
+
+<% if @can_edit_ad_org %>
+  <%= form_with url: project_covenant_folders_path(project_id: @project.to_param) + "/ad_org", method: :patch, local: true do %>
+    <div class="FormControl" style="max-width: 28rem; margin-bottom: 1.5rem;">
+      <label class="FormControl-label" for="covenant-ad-org">Предприятие</label>
+      <div style="display: flex; gap: 0.5rem;">
+        <select class="FormControl-input" id="covenant-ad-org" name="ad_org_option_id">
+          <% @ad_org_options.each do |opt| %>
+            <option value="<%= opt.id %>" <%= "selected" if @ad_org_option&.id == opt.id %>><%= defined?(CovenantAd) ? CovenantAd.public_label(opt.value) : opt.value %></option>
+          <% end %>
+        </select>
+        <%= render(Primer::Beta::Button.new(type: :submit)) { "Сменить" } %>
+      </div>
+    </div>
+  <% end %>
+<% elsif @ad_org_cf %>
+  <p style="margin-bottom: 1.5rem;">Предприятие: <strong><%= @ad_org_label %></strong></p>
+<% end %>
+
+<% if @can_create %>
+  <%= form_with url: project_covenant_folders_path(project_id: @project.to_param), method: :post, local: true do %>
+    <div class="FormControl" style="max-width: 28rem; margin-bottom: 1.5rem;">
+      <label class="FormControl-label" for="covenant-folder-name">Новая папка</label>
+      <div style="display: flex; gap: 0.5rem;">
+        <input class="FormControl-input" id="covenant-folder-name" type="text" name="name"
+               required maxlength="255" placeholder="Например: Информационные ковенанты"
+               autocomplete="off">
+        <%= render(Primer::Beta::Button.new(scheme: :primary, type: :submit)) { "Создать папку" } %>
+      </div>
+    </div>
+  <% end %>
+<% end %>
+
+<%=
+  render(Primer::Beta::BorderBox.new) do |box|
+    box.with_header { "Папки" }
+    box.with_row do
+      render(Primer::Beta::Link.new(href: project_work_packages_path(@project), font_weight: :bold)) { "Без папки" } +
+        render(Primer::Beta::Text.new(color: :muted, ml: 2)) { "#{@unfiled_count} ковенант" }
+    end
+    @folders.each do |folder|
+      count = folder.work_packages.count
+      box.with_row do
+        render(Primer::Beta::Link.new(href: project_work_packages_path(folder), font_weight: :bold)) { folder.name } +
+          render(Primer::Beta::Text.new(color: :muted, ml: 2)) { "#{count} ковенант" }
+      end
+    end
+  end
+%>

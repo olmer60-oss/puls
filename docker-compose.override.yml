@@ -1,0 +1,90 @@
+# Covenant overrides: отключённые модули и локальные настройки.
+# Мержится автоматически с docker-compose.yml.
+
+x-covenant-env: &covenant_env
+  OPENPROJECT_HTTPS: "${OPENPROJECT_HTTPS:-false}"
+  OPENPROJECT_HSTS: "${OPENPROJECT_HSTS:-false}"
+  OPENPROJECT_DISABLED__MODULES: "${OPENPROJECT_DISABLED__MODULES}"
+  OPENPROJECT_DEFAULT__PROJECTS__MODULES: "${OPENPROJECT_DEFAULT__PROJECTS__MODULES:-work_package_tracking}"
+  OPENPROJECT_SHOW__COMMUNITY__LINKS: "${OPENPROJECT_SHOW__COMMUNITY__LINKS:-false}"
+  OPENPROJECT_APIV3__ENABLE__BASIC__AUTH: "${OPENPROJECT_APIV3__ENABLE__BASIC__AUTH:-true}"
+  OPENPROJECT_PLUGIN__OPENPROJECT__TWO__FACTOR__AUTHENTICATION: '${OPENPROJECT_PLUGIN__OPENPROJECT__TWO__FACTOR__AUTHENTICATION:-{"disabled":true,"active_strategies":[],"enforced":false}}'
+  OPENPROJECT_APP__TITLE: "${OPENPROJECT_APP__TITLE:-Пульс}"
+  OPENPROJECT_EE__HIDE__BANNERS: "${OPENPROJECT_EE__HIDE__BANNERS:-true}"
+  OPENPROJECT_EE__MANAGER__VISIBLE: "${OPENPROJECT_EE__MANAGER__VISIBLE:-false}"
+  # lost_password / register выпилены навсегда (не через .env-переключатель)
+  OPENPROJECT_LOST__PASSWORD: "false"
+  OPENPROJECT_SELF__REGISTRATION: "0"
+  OPENPROJECT_BLACKLISTED__ROUTES: "${OPENPROJECT_BLACKLISTED__ROUTES:-^/admin/enterprise ^/shares/?$ ^/portfolios ^/gantt ^/work_packages/?$ ^/work_packages/details ^/roadmap ^/documents ^/account/register ^/account/lost_password}"
+  DISABLE_BOOTSNAP: "1"
+  COVENANT_CUSTOM_DIR: /covenant-custom
+  COVENANT_DEFAULT_ENTERPRISE: "${COVENANT_DEFAULT_ENTERPRISE:-pao-koks}"
+  # LDAP выключен: пустой HOST, без DN домена.
+  OPENPROJECT_SEED_LDAP_PMH_HOST: "${OPENPROJECT_SEED_LDAP_PMH_HOST:-}"
+  OPENPROJECT_SEED_LDAP_PMH_PORT: "${OPENPROJECT_SEED_LDAP_PMH_PORT:-636}"
+  OPENPROJECT_SEED_LDAP_PMH_SECURITY: "${OPENPROJECT_SEED_LDAP_PMH_SECURITY:-simple_tls}"
+  OPENPROJECT_SEED_LDAP_PMH_TLS__VERIFY: "${OPENPROJECT_SEED_LDAP_PMH_TLS__VERIFY:-false}"
+  OPENPROJECT_SEED_LDAP_PMH_BINDUSER: "${OPENPROJECT_SEED_LDAP_PMH_BINDUSER:-}"
+  OPENPROJECT_SEED_LDAP_PMH_BINDPASSWORD: "${OPENPROJECT_SEED_LDAP_PMH_BINDPASSWORD:-}"
+  OPENPROJECT_SEED_LDAP_PMH_BASEDN: "${OPENPROJECT_SEED_LDAP_PMH_BASEDN:-}"
+  OPENPROJECT_SEED_LDAP_PMH_FILTER: "${OPENPROJECT_SEED_LDAP_PMH_FILTER:-}"
+  OPENPROJECT_SEED_LDAP_PMH_SYNC__USERS: "${OPENPROJECT_SEED_LDAP_PMH_SYNC__USERS:-false}"
+  OPENPROJECT_SEED_LDAP_PMH_LOGIN__MAPPING: "${OPENPROJECT_SEED_LDAP_PMH_LOGIN__MAPPING:-}"
+  OPENPROJECT_SEED_LDAP_PMH_FIRSTNAME__MAPPING: "${OPENPROJECT_SEED_LDAP_PMH_FIRSTNAME__MAPPING:-}"
+  OPENPROJECT_SEED_LDAP_PMH_LASTNAME__MAPPING: "${OPENPROJECT_SEED_LDAP_PMH_LASTNAME__MAPPING:-}"
+  OPENPROJECT_SEED_LDAP_PMH_MAIL__MAPPING: "${OPENPROJECT_SEED_LDAP_PMH_MAIL__MAPPING:-}"
+  # SMTP. Пусто — mail не уходит наружу.
+  OPENPROJECT_EMAIL__DELIVERY__METHOD: "${OPENPROJECT_EMAIL__DELIVERY__METHOD:-}"
+  OPENPROJECT_SMTP__ADDRESS: "${OPENPROJECT_SMTP__ADDRESS:-}"
+  OPENPROJECT_SMTP__PORT: "${OPENPROJECT_SMTP__PORT:-25}"
+  OPENPROJECT_SMTP__DOMAIN: "${OPENPROJECT_SMTP__DOMAIN:-localhost}"
+  OPENPROJECT_SMTP__AUTHENTICATION: "${OPENPROJECT_SMTP__AUTHENTICATION:-none}"
+  OPENPROJECT_SMTP__ENABLE__STARTTLS__AUTO: "${OPENPROJECT_SMTP__ENABLE__STARTTLS__AUTO:-false}"
+  OPENPROJECT_SMTP__OPENSSL__VERIFY__MODE: "${OPENPROJECT_SMTP__OPENSSL__VERIFY__MODE:-none}"
+  OPENPROJECT_MAIL__FROM: "${OPENPROJECT_MAIL__FROM:-}"
+
+# Языки только на runtime: SettingSeeder пишет available_languages/default_language
+# и падает с NotWritableError, если они уже заданы через env.
+x-covenant-runtime-env: &covenant_runtime_env
+  <<: *covenant_env
+  OPENPROJECT_DEFAULT__LANGUAGE: "${OPENPROJECT_DEFAULT__LANGUAGE:-ru}"
+  OPENPROJECT_AVAILABLE__LANGUAGES: "${OPENPROJECT_AVAILABLE__LANGUAGES:-ru}"
+
+x-covenant-volumes: &covenant_volumes
+  - ./custom:/covenant-custom:ro
+
+services:
+  web:
+    environment:
+      <<: *covenant_runtime_env
+    volumes: *covenant_volumes
+    command:
+      - bash
+      - /covenant-custom/covenant-boot.sh
+      - ./docker/prod/web
+
+  worker:
+    environment:
+      <<: *covenant_runtime_env
+    volumes: *covenant_volumes
+    command:
+      - bash
+      - /covenant-custom/covenant-boot.sh
+      - ./docker/prod/worker
+
+  cron:
+    environment:
+      <<: *covenant_runtime_env
+    volumes: *covenant_volumes
+    command:
+      - bash
+      - /covenant-custom/covenant-boot.sh
+      - ./docker/prod/cron
+
+  seeder:
+    environment:
+      <<: *covenant_env
+      # На время seed модули должны быть доступны (демо meetings/boards).
+      # Runtime (web/worker/cron) по-прежнему берёт DISABLED из .env.
+      OPENPROJECT_DISABLED__MODULES: ""
+    volumes: *covenant_volumes

@@ -1,0 +1,277 @@
+# Covenant overrides: WP → «Ковенанты», проекты → «Предприятия»
+# Rails + js.* (серверные строки). Frontend-ассет патчится в zzz_covenant_ui.rb.
+ru:
+  label_home: Предприятия
+  label_project: Предприятие
+  label_project_plural: Предприятия
+  label_projects_menu: Предприятия
+  label_project_new: Новое предприятие
+  label_project_view_all: Все предприятия
+  label_covenant_folders: Папки
+  notice_account_invalid_credentials: Неверный логин или пароль.
+  notice_account_invalid_credentials_or_blocked: Неверный логин или пароль. Если ошибка повторяется, подождите пару минут и попробуйте снова.
+  notice_account_wrong_password: Неверный пароль.
+  notice_covenant_no_enterprises: Нет доступных предприятий. Обратитесь к администратору.
+  label_project_settings: Настройки предприятия
+  projects:
+    lists:
+      active: Все предприятия
+      my: Мои предприятия
+      favorited: Избранное
+      archived: Архив
+  label_work_package: Ковенанта
+  label_work_package_plural: Ковенанты
+  label_work_package_new: Создать
+  label_work_package_edit: "Редактирование ковенанты %{name}"
+  label_work_package_view_all: Все ковенанты
+  label_work_package_tracking: Отслеживание ковенант
+  label_work_package_types: Типы ковенант
+  label_work_package_status: Статус ковенанты
+  label_work_package_status_plural: Статусы ковенант
+  label_work_package_attachments: Вложения ковенанты
+  label_work_package_comments: Комментарии к ковенанте
+  label_work_package_hierarchy: Иерархия ковенант
+  label_work_package_category_plural: Категории ковенант
+  label_all_open_wps: Все ковенанты
+  label_activity: История изменений
+  label_project_activity: История изменений
+  project_module_activity: История изменений
+  label_my_activity: Моя история изменений
+  button_all_filters: Все фильтры
+  button_filter: Фильтр
+  button_close: Закрыть
+  button_dismiss: Закрыть
+  label_change_password: Сменить пароль
+  label_zen_mode: Режим на весь экран
+  label_past: Прошлое
+  label_share_work_package: Поделиться ковенантой
+  label_move_work_package: Переместить ковенанту
+  activities:
+    work_packages:
+      activity_tab:
+        label_dismiss_comment: Закрыть
+        unsaved_changes_confirmation_message: Закрыть комментарий? Введённый текст будет потерян.
+  header:
+    project_select_component:
+      all_projects: Предприятия
+      favorites: Избранное
+      leave_project: Покинуть предприятие
+      title: Предприятия
+  description_parent_work_package: Родительская ковенанта
+  description_sub_work_package: Вложенная ковенанта / подзадача
+  description_select_work_package: Выберите ковенанту
+  label_change_parent: Изменить родительскую ковенанту
+  label_add_subtask: Добавить подзадачу
+  label_subtask_plural: Подзадачи
+  permission_view_work_packages: Просмотр ковенант
+  permission_add_work_packages: Создание ковенант
+  permission_edit_work_packages: Редактирование ковенант
+  permission_delete_work_packages: Удаление ковенант
+  activerecord:
+    models:
+      work_package:
+        one: Ковенанта
+        few: Ковенанты
+        many: Ковенант
+        other: Ковенанты
+      project:
+        one: Предприятие
+        few: Предприятия
+        many: Предприятий
+        other: Предприятия
+    attributes:
+      project:
+        id: ID
+        identifier: Идентификатор
+        hierarchy: Иерархия
+        name: Имя
+        public: Общий
+        description: Описание
+        status_explanation: Описание статуса
+  js:
+    label_all_projects: Предприятия
+    description_select_work_package: "Выберите ковенанту #%{id}"
+    description_subwork_package: "Дочерняя ковенанта #%{id}"
+    label_all_work_packages: Все ковенанты
+    label_create_work_package: Создать
+    label_edit_status: Изменить статус ковенанты
+    label_work_package: Ковенанта
+    label_work_package_parent: Родительская ковенанта
+    label_work_package_plural: Ковенанты
+    label_watch_work_package: Наблюдать за ковенантой
+    label_work_package_context_menu: Контекстное меню ковенанты
+    label_unwatch_work_package: Прекратить наблюдение за ковенантой
+    label_work_package_upload_notification: "Загрузка файлов для ковенанты #%{id}: %{subject}"
+    label_validation_error: "Ковенанта не может быть сохранена из-за следующих ошибок:"
+    label_assignee_alt_text: "Эта ковенанта назначена %{name}"
+    relation_labels:
+      parent: Родительская ковенанта
+      child: Подзадача
+      children: Подзадачи
+    relations_hierarchy:
+      parent_headline: Родительская ковенанта
+      hierarchy_headline: Иерархия
+      children_headline: Подзадачи
+    relation_buttons:
+      set_parent: Сделать подзадачей
+      change_parent: Изменить родительскую ковенанту
+      remove_parent: Убрать из подзадач
+      add_parent: Выбрать родительскую ковенанту
+      add_new_child: Создать подзадачу
+      add_existing_child: Добавить подзадачу
+      remove_child: Убрать подзадачу
+    relations_autocomplete:
+      parent_placeholder: Выберите родительскую ковенанту или Escape для отмены
+    text_work_packages_destroy_confirmation: Вы уверены, что хотите удалить выбранные ковенанты?
+    toolbar:
+      unselected_title: Ковенанта
+    units:
+      workPackage:
+        one: ковенанта
+        few: ковенанты
+        many: ковенант
+        other: ковенант
+    global_search:
+      direct_hit_available: Ковенанта с точным идентификатором найдена. Нажмите Enter для её открытия.
+      search_placeholder_expanded: Поиск ковенант по темам, предприятию, типу, статусу или идентификатору
+    work_packages:
+      label_work_package: Ковенанта
+      label_work_package_plural: Ковенанты
+      confirm_edit_cancel: Вы уверены, что хотите отменить редактирование ковенанты?
+      message_error_during_bulk_delete: Произошла ошибка при попытке удалить ковенанты.
+      message_successful_bulk_delete: Ковенанты успешно удалены.
+      message_successful_show_in_fullscreen: Кликните здесь, чтобы открыть эту ковенанту в полноэкранном режиме.
+      message_view_spent_time: Показать время, затраченное на эту ковенанту
+      message_work_package_read_only: Ковенанта заблокирована в этом статусе. Никакой атрибут, отличный от статуса, не может быть изменен.
+      message_work_package_status_blocked: Статус ковенанты недоступен для записи из-за закрытого статуса и назначенной закрытой версии.
+      filters:
+        title: Фильтровать ковенанты
+      inline_create:
+        title: Кликните здесь, чтобы добавить новую ковенанту в этот список
+      create:
+        title: Создать
+        button: Создать
+        header: "Новый %{type}"
+        header_no_type: Новый запрос (тип ещё не установлен)
+      duplicate:
+        title: Дублировать ковенанту
+      hierarchy:
+        leaf: "Лист ковенанты уровня %{level}."
+      faulty_query:
+        title: Не удалось загрузить ковенанты.
+      no_results:
+        title: Нет ковенант для показа.
+      limited_results: "Только %{count} ковенант могут быть показаны в режиме ручной сортировки. Уменьшите результаты фильтрации или переключитесь на автоматическую сортировку."
+      jump_marks:
+        label_pagination: Кликните здесь чтобы пропустить таблицу ковенант и перейти к вёрстке
+      query:
+        public_text: Опубликовать это представление, дав к нему доступ другим пользователям.
+      reminders:
+        subtitle: Вы получите уведомление о данной ковенанте в выбранное время.
+      scheduling:
+        is_parent: Даты этой ковенанты выводятся автоматически из дочерних узлов.
+        is_switched_from_manual_to_automatic: Даты этой ковенанты могут быть пересчитаны после переключения планирования.
+      sharing:
+        title: Поделиться ковенантой
+        show_all_users: Показать всех пользователей с доступом к ковенанте
+      table:
+        configure_button: Настроить таблицу ковенант
+        summary: Таблица с названиями ковенант в строках и атрибутами ковенант в столбцах.
+      table_configuration:
+        button: Настроить эту таблицу ковенант
+        choose_display_mode: Отображать ковенанты как
+        modal_title: Конфигурация таблицы ковенант
+        sorting_mode:
+          description: "Выберите режим упорядочивания ковенант:"
+        relation_filters:
+          filter_work_packages_by_relation_type: Фильтр ковенант по типу отношения
+
+  # /my/notifications — crowdin оставил EN в description; термины Пульса
+  my_account:
+    notifications_and_email:
+      title: Уведомления и email
+      tabs:
+        notifications: Настройки уведомлений
+        email_reminders: Почтовые напоминания
+    notifications:
+      participating:
+        title: Участие
+        description: >-
+          Вы всегда получаете уведомление при упоминании и об изменениях ковенант,
+          за которыми следите — это нельзя отключить. Дополнительно можно включить
+          уведомления по ковенантам, где вы исполнитель, ответственный или вам дали доступ.
+        submit_button: Сохранить
+        mentioned: Упомянули
+        watched: Наблюдаю
+        assignee: Исполнитель
+        responsible: Ответственный
+        shared: Доступно мне
+      date_alerts:
+        title: Оповещения по датам
+        description: >-
+          Оповещения о приближающихся или просроченных сроках по ковенантам,
+          где вы исполнитель, ответственный или наблюдатель.
+        submit_button: Сохранить
+        start_date: Дата начала
+        due_date: Дата окончания
+        overdue: Просрочено
+        times:
+          same_day: В тот же день
+          one_day_before: За 1 день
+          three_days_before: За 3 дня
+          seven_days_before: За 7 дней
+          one_day_after: Через 1 день
+          three_days_after: Через 3 дня
+          seven_days_after: Через 7 дней
+      non_participating:
+        title: Все ковенанты
+        description: >-
+          Дополнительно можно получать уведомления о событиях во всех предприятиях,
+          даже если вы не участвуете в ковенанте.
+        submit_button: Сохранить
+        work_package_created: Новые ковенанты
+        work_package_commented: Все новые комментарии
+        work_package_processed: Все изменения статуса
+        work_package_prioritized: Все изменения приоритета
+        work_package_scheduled: Все изменения дат
+      project_specific_settings:
+        title: Уведомления по предприятию
+        description: >-
+          Можно настроить отдельные правила для конкретного предприятия.
+          Эти настройки перекрывают общие выше.
+        add_button: Добавить уведомления по предприятию
+        dialog_title: Уведомления по предприятию
+        list_header: Предприятия с особыми уведомлениями
+    email_reminders:
+      immediate_reminders:
+        title: Отправлять мне письмо сразу
+        mentioned: Когда меня упоминают
+        personal_reminder: По личным напоминаниям
+      daily_reminders:
+        title: Ежедневные письма о непрочитанных уведомлениях
+        description: >-
+          Письма только по непрочитанным уведомлениям и только в указанные часы.
+          Пока не задан часовой пояс учётной записи, время считается в UTC.
+        enabled: Включить ежедневные напоминания
+        add_time: Добавить время
+        remove_time: Удалить время
+        time_slot_label: Время напоминания (UTC)
+      workdays:
+        title: Дни для почтовых напоминаний
+        submit_button: Сохранить дни
+      pause_reminders:
+        title: Пауза почтовых уведомлений
+        enabled: Временно приостановить ежедневные напоминания
+        date_range: Период паузы
+  covenant:
+    mail:
+      assignment:
+        subject_assigned: "%{user_name} назначил вас исполнителем — %{id}: %{subject}"
+        subject_responsible: "%{user_name} назначил вас ответственным — %{id}: %{subject}"
+        summary_assigned: "%{user} назначил вас исполнителем ковенанты"
+        summary_responsible: "%{user} назначил вас ответственным по ковенанте"
+      due:
+        subject_soon: "Срок через %{days} дн. — %{id}: %{subject}"
+        subject_overdue: "Просрочено — %{id}: %{subject}"
+        summary_soon: "До срока ковенанты осталось %{days} дн. (до %{date})"
+        summary_overdue: "Ковенанта просрочена (срок был %{date})"

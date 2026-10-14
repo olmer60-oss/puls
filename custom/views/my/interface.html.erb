@@ -1,0 +1,22 @@
+<%# Пульс: только цветовой режим + контраст (без алертов / прочего) %>
+<% html_title(t(:label_interface)) %>
+
+<%=
+  render(Primer::OpenProject::PageHeader.new) do |header|
+    header.with_title { t(:label_interface) }
+  end
+%>
+
+<%= error_messages_for "user" %>
+
+<%=
+  settings_primer_form_with(
+    model: @user.pref,
+    scope: :pref,
+    url: { action: "update_settings" },
+    method: :patch,
+    data: { turbo: false, controller: "my--look-and-feel" }
+  ) do |form|
+    render(My::LookAndFeelForm.new(form))
+  end
+%>

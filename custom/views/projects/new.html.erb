@@ -1,0 +1,48 @@
+<%#-- Covenant: без шаблона и без шага 3 (Завод AD уже на форме имени).
+     Based on OpenProject app/views/projects/new.html.erb.
+++#%>
+
+<% title = new_workspace_title(@new_project) %>
+<% html_title title %>
+
+<% if portfolio_management_feature_missing? %>
+  <%= render partial: "new_header", locals: { title: } %>
+  <%=
+    render EnterpriseEdition::BannerComponent.new(
+      :portfolio_management,
+      variant: :large,
+      image: "enterprise/portfolio-management.png"
+    )
+  %>
+<% else %>
+  <% cancel_href = workspace_creation_cancel_href(@new_project, @parent) %>
+
+  <%= render(StepWizard::PageLayoutComponent.new) do |layout| %>
+    <%=
+      layout.with_page_header do
+        render partial: "new_header", locals: { title: }
+      end
+    %>
+
+    <%= layout.with_wizard_content do %>
+      <%=
+        render Projects::NewComponent.new(
+          project: @new_project,
+          template: nil,
+          step: 2
+        )
+      %>
+    <% end %>
+    <%=
+      layout.with_footer do
+        render Projects::ProjectCreationFooterComponent.new(
+          form_identifier: "project-create-form",
+          project: @new_project,
+          template: nil,
+          current_step: 1,
+          cancel_href:
+        )
+      end
+    %>
+  <% end %>
+<% end %>

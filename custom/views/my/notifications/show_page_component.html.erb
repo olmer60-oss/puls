@@ -1,0 +1,46 @@
+<%#-- Covenant: /my/notifications без project-specific блока.
+     Based on OpenProject My::Notifications::ShowPageComponent.
+++#%>
+
+<%=
+  settings_primer_form_with(
+    model: global_notification_setting,
+    scope: :notification_setting,
+    url: update_participating_url,
+    method: :patch,
+    data: { turbo: false, test_selector: "participating-form" }
+  ) do |form|
+    render(My::Notifications::ParticipatingForm.new(form))
+  end
+%>
+
+<% if date_alerts_available? %>
+  <%=
+    settings_primer_form_with(
+      model: global_notification_setting,
+      scope: :notification_setting,
+      url: update_date_alerts_url,
+      method: :patch,
+      data: {
+        turbo: false,
+        controller: "show-when-checked",
+        show_when_checked_visibility_class: "d-none",
+        test_selector: "date-alerts-form"
+      }
+    ) do |form|
+      render(My::Notifications::DateAlertsForm.new(form))
+    end
+  %>
+<% end %>
+
+<%=
+  settings_primer_form_with(
+    model: global_notification_setting,
+    scope: :notification_setting,
+    url: update_non_participating_url,
+    method: :patch,
+    data: { turbo: false, test_selector: "non-participating-form" }
+  ) do |form|
+    render(My::Notifications::NonParticipatingForm.new(form))
+  end
+%>

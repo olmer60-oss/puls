@@ -1,0 +1,35 @@
+<%#-- Covenant: один экран — имя / идентификатор / описание / родитель / Завод AD.
+     Шаблона нет. Шаг 3 (тот же CF) убран.
+++#%>
+
+<%=
+  component_wrapper(target: "_top", data: identifier_suggestion_data) do
+    settings_primer_form_with(
+      model: project,
+      url: workspaces_path,
+      html: { id: "project-create-form" }
+    ) do |f|
+      flex_layout do |container|
+        container.with_row(mb: 3) do
+          render(
+            Primer::Forms::FormList.new(
+              Projects::Settings::NameForm.new(f),
+              Projects::Settings::EditableIdentifierForm.new(f),
+              Projects::Settings::DescriptionForm.new(f),
+              Projects::Settings::RelationsForm.new(
+                f,
+                invisible: params[:parent_id].present? || project.parent.present?
+              ),
+              Projects::Settings::CustomFieldsForm.new(f),
+              Projects::Settings::TypeForm.new(f)
+            )
+          )
+        end
+
+        container.with_row do
+          render Projects::StepForm.new(f, step: 2)
+        end
+      end
+    end
+  end
+%>

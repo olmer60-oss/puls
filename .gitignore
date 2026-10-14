@@ -1,0 +1,9 @@
+.env
+data/
+backups/
+offline/*.tar
+offline/*.tar.gz
+offline/env.pulse-server
+*.log
+.DS_Store
+Thumbs.db

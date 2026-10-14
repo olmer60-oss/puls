@@ -1,0 +1,499 @@
+/* Пульс: прячем Enterprise upsell и лишний UI + бренд */
+
+/* ===== Brand lockup: [mark] Пульс / Система контроля выполнения ковенант ===== */
+.pulse-brand {
+  display: inline-flex !important;
+  align-items: center !important;
+  gap: 10px !important;
+  box-sizing: border-box !important;
+  height: var(--header-height, 55px) !important;
+  max-height: var(--header-height, 55px) !important;
+  margin: 0 !important;
+  padding: 0 12px 0 8px !important;
+  text-decoration: none !important;
+  color: var(--header-item-font-color, #fff) !important;
+  vertical-align: middle !important;
+  line-height: 1 !important;
+}
+
+.pulse-brand:hover,
+.pulse-brand:focus {
+  text-decoration: none !important;
+  color: var(--header-item-font-hover-color, var(--header-item-font-color, #fff)) !important;
+}
+
+.pulse-brand__mark {
+  display: block !important;
+  width: 32px !important;
+  height: 32px !important;
+  flex: 0 0 32px !important;
+  margin: 0 !important;
+  background: url("/pulse-logo.png") center / contain no-repeat !important;
+}
+
+.pulse-brand__text {
+  display: flex !important;
+  flex-direction: column !important;
+  justify-content: center !important;
+  align-items: flex-start !important;
+  gap: 1px !important;
+  min-width: 0 !important;
+  max-width: min(320px, 36vw) !important;
+  transform: translateY(0.5px); /* оптический центр относительно глифов */
+}
+
+.pulse-brand__title {
+  display: block !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  font-family: var(--body-font-family, "Inter", "Segoe UI", sans-serif) !important;
+  font-size: 15px !important;
+  font-weight: 600 !important;
+  letter-spacing: 0.01em !important;
+  line-height: 1.1 !important;
+  white-space: nowrap !important;
+  color: inherit !important;
+}
+
+.pulse-brand__subtitle {
+  display: block !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  font-family: var(--body-font-family, "Inter", "Segoe UI", sans-serif) !important;
+  font-size: 10px !important;
+  font-weight: 400 !important;
+  letter-spacing: 0.01em !important;
+  line-height: 1.15 !important;
+  white-space: normal !important;
+  opacity: 0.72 !important;
+  color: inherit !important;
+}
+
+.pulse-brand_waffle {
+  height: auto !important;
+  max-height: none !important;
+  padding: 0 !important;
+}
+
+/* OP рендерит desktop + mobile логотипы рядом — прячем лишний */
+.pulse-brand_mobile {
+  display: none !important;
+}
+
+@media (max-width: 680px) {
+  .pulse-brand_desktop {
+    display: none !important;
+  }
+
+  .pulse-brand_mobile {
+    display: inline-flex !important;
+  }
+
+  .pulse-brand__subtitle {
+    display: none !important;
+  }
+
+  .pulse-brand {
+    padding: 0 8px 0 4px !important;
+    gap: 8px !important;
+  }
+
+  .pulse-brand__mark {
+    width: 28px !important;
+    height: 28px !important;
+    flex-basis: 28px !important;
+  }
+}
+
+/* Старые OP-логоклассы не должны торчать поверх бренда */
+.op-app-header .op-logo--link:not(.pulse-brand),
+.op-app-header a.op-logo:not(.pulse-brand) {
+  display: none !important;
+}
+
+/* Баннеры / тизеры Enterprise */
+.op-enterprise-banner,
+[class*="op-enterprise-banner"],
+[class*="enterprise-banner"],
+[data-test-selector*="enterprise-banner"],
+[data-test-selector*="upsell"],
+.upsell-colored,
+.Button .octicon.upsell-colored,
+span.upsell-colored,
+op-enterprise-banner {
+  display: none !important;
+}
+
+/* Любой пункт меню / список с EE-бейджем */
+.ActionListItem:has(.upsell-colored),
+.ActionListItem:has(.octicon-op-enterprise-addons),
+.op-menu--item:has(.upsell-colored),
+.op-menu--item:has(.octicon-op-enterprise-addons),
+li:has(.upsell-colored),
+li:has(.octicon-op-enterprise-addons),
+li:has(a[href*="enterprise"]),
+li:has(a[href*="utm_campaign=ee-upsell"]) {
+  display: none !important;
+}
+
+/* Кнопка «Поделиться» на задании */
+[data-test-selector="op-wp-share-button"],
+button[aria-label*="Share" i],
+button[aria-label*="Поделиться"],
+a[href*="/share"],
+op-wp-share-button,
+.wp-share-button {
+  display: none !important;
+}
+
+/* Пункты меню / фильтры про sharing */
+a[href*="shared_with"],
+[data-qa-selector*="shared_with"],
+[data-test-selector*="shared_with"] {
+  display: none !important;
+}
+
+/* Ссылки «Корпоративная версия» / апгрейд */
+a[href*="enterprise"],
+a[href*="chargebee"],
+a[href*="openproject.org/enterprise"],
+a[href*="start.openproject.com"],
+a[href*="utm_campaign=ee-upsell"] {
+  display: none !important;
+}
+
+/* Админка EE */
+a[href*="/admin/enterprise"] {
+  display: none !important;
+}
+
+/* Глобальные модули: Портфолио / Пакеты работ / Гант */
+a[href="/portfolios"],
+a[href^="/portfolios?"],
+a[href^="/portfolios/"],
+li:has(a[href="/portfolios"]),
+li:has(a[href^="/portfolios?"]),
+li:has(a[href^="/portfolios/"]),
+a[href="/work_packages"],
+a[href="/work_packages/"],
+a[href^="/work_packages?"],
+li:has(> a[href="/work_packages"]),
+li:has(> a[href="/work_packages/"]),
+li:has(> a[href^="/work_packages?"]),
+a[href="/gantt"],
+a[href^="/gantt?"],
+a[href^="/gantt/"],
+li:has(a[href="/gantt"]),
+li:has(a[href^="/gantt?"]),
+li:has(a[href^="/gantt/"]),
+#main-menu-gantt,
+[id="main-menu-gantt"] {
+  display: none !important;
+}
+
+/* Кнопка «Справка» в шапке */
+#op-app-header--help-menu-button,
+#op-app-header--help-menu-overlay,
+#op-app-header--help-menu-list,
+button[popovertarget="op-app-header--help-menu-overlay"] {
+  display: none !important;
+}
+
+/* Дорожные карты / Документы в проекте */
+a[href$="/roadmap"],
+a[href*="/roadmap?"],
+li:has(a[href$="/roadmap"]),
+li:has(a[href*="/roadmap?"]),
+a[href$="/documents"],
+a[href*="/documents?"],
+a[href*="/documents/"],
+li:has(a[href$="/documents"]),
+li:has(a[href*="/documents?"]) {
+  display: none !important;
+}
+
+/* Пустые/EE фильтры в сайдбаре заданий */
+a[href*="shared_with"],
+a[href*="name=shared_with"],
+li.op-submenu--item:has(a[href*="shared_with"]),
+li.op-submenu--item:has([class*="upsell"]),
+.op-submenu--item:has(.octicon-op-enterprise-addons) {
+  display: none !important;
+}
+
+/* Пульс: скрыть «Настроить таблицу» и лишние view-переключатели */
+button[aria-label*="Настроить таблиц"],
+button[title*="Настроить таблиц"],
+button[aria-label*="Configure table" i],
+button[title*="Configure table" i],
+[data-test-selector="wp-table--configuration-modal--trigger"],
+[data-qa-selector="wp-table--configuration-modal--trigger"],
+.wp-table--configuration-modal--trigger,
+wp-table-configuration-modal-button,
+button.wp-table--configuration-button {
+  display: none !important;
+}
+
+/* Карточки / календарь / диаграмма в тулбаре таблицы заданий */
+[data-test-selector="wp-view-toggle-button"],
+[data-qa-selector="wp-view-toggle-button"],
+button[aria-label*="Карточки"],
+button[aria-label*="Календар"],
+button[title*="Карточки"],
+button[title*="Gantt" i],
+.op-wp-view-select,
+wp-view-dropdown-menu {
+  display: none !important;
+}
+
+/* Сохранённые представления / «Ещё» лишние в сайдбаре — оставляем минимум через Ruby;
+   прячем блок «Поделиться» и EE в меню представлений */
+.op-submenu--item:has(a[href*="shared"]),
+.op-submenu--body .octicon-op-enterprise-addons {
+  display: none !important;
+}
+
+/* Моя страница скрыта; История изменений без фильтров */
+a[href="/my/page"],
+a[href^="/my/page?"],
+li:has(> a[href="/my/page"]),
+#main-menu-home,
+#main-menu-my-page {
+  display: none !important;
+}
+
+/* Учётка self-service вырезана (AD): прячем прямые ссылки на мёртвые /my/* */
+a[href="/my/account"],
+a[href^="/my/account?"],
+a[href="/my/security"],
+a[href^="/my/security?"],
+a[href="/my/access_tokens"],
+a[href^="/my/access_tokens?"],
+a[href="/my/locale"],
+a[href="/my/sessions"],
+a[href^="/my/sessions"],
+a[href="/my/avatar"],
+a[href^="/my/avatar"],
+a[href="/users/me/avatar"],
+a[href^="/users/me/avatar"],
+li:has(> a[href="/my/account"]),
+li:has(> a[href="/my/security"]),
+li:has(> a[href="/my/access_tokens"]),
+li:has(> a[href="/my/locale"]),
+li:has(> a[href="/my/sessions"]),
+li:has(> a[href="/my/avatar"]),
+li:has(> a[href="/users/me/avatar"]),
+#main-menu-account,
+#main-menu-security,
+#main-menu-access_tokens,
+#main-menu-locale,
+#main-menu-sessions,
+#main-menu-working_hours,
+#main-menu-avatar {
+  display: none !important;
+}
+
+/* /my/notifications: запасной hide project-specific (основное — erb-оверлей) */
+body.controller-my.action-notifications [data-test-selector="project-specific-settings-list"],
+body.controller-my.action-notifications [data-test-selector="project-specific-settings-list--action-menu"],
+body.controller-my.action-notifications a[href*="/my/project_settings"] {
+  display: none !important;
+}
+
+/* /activity: сайдбар с фильтрами типов событий */
+body.controller-activities #sidebar,
+body.controller-activities .op-sidebar,
+body.controller-activities turbo-frame#activity_menu,
+#main-menu-activity_filters,
+li:has(> #main-menu-activity_filters),
+fieldset.form--fieldset.sidebar:has(#event_types_),
+fieldset.form--fieldset.sidebar:has([id^="event_types_"]) {
+  display: none !important;
+}
+
+body.controller-activities #content-wrapper,
+body.controller-activities .content-wrapper {
+  margin-right: 0 !important;
+}
+
+/* Админка целиком из UI (роуты остаются для прямого URL) */
+a[href="/admin"],
+a[href^="/admin/"],
+li:has(> a[href="/admin"]),
+li:has(> a[href^="/admin/"]) {
+  display: none !important;
+}
+
+/* Настройки предприятия / участники / overview в сайдбаре проекта */
+a[href*="/projects/"][href$="/members"],
+li:has(> a[href*="/projects/"][href$="/members"]),
+a[href*="/projects/"][href*="/settings/"],
+li:has(a[href*="/projects/"][href*="/settings/"]),
+#main-menu-settings,
+#main-menu-members,
+#main-menu-overview {
+  display: none !important;
+}
+
+/* Контекстное меню / карточка: PDF, Atom (подзадачи НЕ скрываем) */
+.dropdown-menu li:has(.icon-export-pdf-with-descriptions),
+.dropdown-menu li:has(.icon-export-pdf),
+.dropdown-menu li:has(.icon-export-atom),
+.dropdown-menu li:has([aria-label="Создать PDF"]),
+.dropdown-menu li:has([aria-label="Скачать Atom"]),
+.dropdown-menu li:has([aria-label="Generate PDF"]),
+.dropdown-menu li:has([aria-label="Download Atom"]),
+.op-context-menu li:has(.icon-export-pdf-with-descriptions),
+.op-context-menu li:has(.icon-export-atom),
+button[aria-label="Создать PDF"],
+button[aria-label="Скачать Atom"],
+a[aria-label="Создать PDF"],
+a[aria-label="Скачать Atom"] {
+  display: none !important;
+}
+
+/* /projects: группа фильтров «Статус» в сайдбаре */
+.op-submenu:has(a[href*="query_id=on_track"]),
+.op-submenu:has(a[href*="query_id=off_track"]),
+.op-submenu:has(a[href*="query_id=at_risk"]),
+.op-submenu:has(a[href*="query_id=on_track" i]),
+li.op-submenu--item:has(a[href*="query_id=on_track"]),
+li.op-submenu--item:has(a[href*="query_id=off_track"]),
+li.op-submenu--item:has(a[href*="query_id=at_risk"]) {
+  display: none !important;
+}
+
+/* Карточка задания: вкладка Вики */
+.op-tab-row--link[href$="/wikis"],
+.op-tab-row--link[href*="/work_packages/"][href$="/wikis"],
+.op-tab-row--link[href*="/wikis?"],
+a.op-tab-row--link[title="Вики"],
+a.op-tab-row--link[title="Wiki"] {
+  display: none !important;
+}
+
+/* Таблица заданий: «Базовый уровень» (baseline) — EE, не нужен */
+button[data-test-selector="baseline-button"],
+.op-baseline-button,
+op-baseline-modal,
+.op-baseline--container {
+  display: none !important;
+}
+
+/* CKEditor «Powered by CKEditor» — внешняя ссылка, не нужна во внутренней системе */
+.ck-powered-by,
+.ck-powered-by-balloon,
+.ck.ck-balloon-panel.ck-powered-by-balloon,
+a[href*="ckeditor.com/powered-by-ckeditor"] {
+  display: none !important;
+  visibility: hidden !important;
+  pointer-events: none !important;
+}
+
+/* Логин: регистрация и «забыли пароль» выпилены */
+body.controller-account.action-login a[href*="/account/lost_password"],
+body.controller-account.action-login a[href*="/account/register"],
+body.controller-account.action-login a[href$="/lost_password"],
+body.controller-account.action-login a[href$="/register"],
+#login-form a[href*="lost_password"],
+#login-form a[href*="register"],
+.login-form a[href*="lost_password"],
+.login-form a[href*="register"],
+.op-login a[href*="lost_password"],
+.op-login a[href*="register"] {
+  display: none !important;
+}
+
+/* /projects: «Мои предприятия» (Rails режет MY; CSS — запасной, класс op-submenu) */
+a.op-submenu--item-action[href="/projects?query_id=my"],
+a.op-submenu--item-action[href$="?query_id=my"],
+li.op-submenu--item:has(> a[href="/projects?query_id=my"]),
+li.op-submenu--item:has(> a[href$="?query_id=my"]) {
+  display: none !important;
+}
+
+/* Сток OP «Пригласить» в футере ng-select — прячем, свою кнопку рисует JS */
+op-invite-user-button,
+.op-invite-user-button {
+  display: none !important;
+}
+
+/* Пока поле Исполнители открыто — инвайт виден даже при пустом списке */
+.covenant-ad-invite__cell-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  margin: 6px 0 0;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: #1d4ed8;
+  font: 600 12px/1.2 inherit;
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+.covenant-ad-invite__cell-btn[hidden] {
+  display: none !important;
+}
+
+.wp-table--cell-container:has(.covenant-ad-invite__cell-btn),
+.inline-edit--active-field:has(.covenant-ad-invite__cell-btn),
+.wp-inline-create-row td:has(.covenant-ad-invite__cell-btn) {
+  overflow: visible !important;
+}
+
+/* Старая ссылка под селектом в таблице — больше не рисуем */
+.covenant-ad-invite__field-btn--table {
+  display: none !important;
+}
+
+/* Создание: без переносов «Ис-пол-ни-тели», стоковый правый сплит не трогаем */
+html.covenant-wp-create .attributes-key-value--key {
+  hyphens: none !important;
+  -webkit-hyphens: none !important;
+  word-break: keep-all !important;
+}
+
+html.covenant-wp-create .attributes-key-value--value-container,
+html.covenant-wp-create .attributes-key-value--value {
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+}
+
+html.covenant-wp-create .covenant-ad-invite__field-btn {
+  position: static !important;
+}
+
+/* Таблица ковенант: колонки по содержимому (тема не на всю ширину экрана) */
+.work-packages-split-view--tabletimeline-side .wp-table--wrapper table,
+.work-packages-split-view--tabletimeline-side .overflow-y-auto table {
+  width: max-content !important;
+  max-width: 100%;
+  table-layout: auto !important;
+}
+
+.wp-table--header-cell.subject,
+.wp-table--cell-td.subject {
+  width: auto !important;
+  max-width: min(42rem, 55vw) !important;
+  min-width: 10rem;
+}
+
+.wp-table--cell-td.subject.-max {
+  max-width: min(42rem, 55vw) !important;
+}
+
+.wp-table--header-cell.id,
+.wp-table--cell-td.id,
+.wp-table--header-cell.status,
+.wp-table--cell-td.status,
+.wp-table--header-cell.dueDate,
+.wp-table--cell-td.dueDate,
+.wp-table--header-cell[class*="customField"],
+.wp-table--cell-td[class*="customField"] {
+  width: 1%;
+  white-space: nowrap;
+}
+

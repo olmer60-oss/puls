@@ -1,0 +1,61 @@
+<%#-- Covenant: почтовые напоминания без блока wiki/news/forum/membership.
+     Based on OpenProject My::Reminders::ShowPageComponent.
+++#%>
+
+<%=
+  settings_primer_form_with(
+    model: @user.pref,
+    scope: "pref[immediate_reminders]",
+    url: update_url,
+    method: :patch,
+    data: { turbo: false, test_selector: "immediate-reminders-form" }
+  ) do |form|
+    render(My::Reminders::ImmediateRemindersForm.new(form))
+  end
+%>
+
+<%=
+  settings_primer_form_with(
+    model: daily_reminders_form_model,
+    scope: "pref[daily_reminders]",
+    url: update_url,
+    method: :patch,
+    data: {
+      turbo: false,
+      controller: "show-when-checked",
+      show_when_checked_visibility_class: "d-none",
+      test_selector: "daily-reminders-form"
+    }
+  ) do |form|
+    render(My::Reminders::DailyRemindersForm.new(form))
+  end
+%>
+
+<%=
+  settings_primer_form_with(
+    model: @user.pref,
+    scope: :pref,
+    url: update_workdays_url,
+    method: :patch,
+    data: { turbo: false, test_selector: "workdays-form" }
+  ) do |form|
+    render(My::Reminders::WorkdaysForm.new(form))
+  end
+%>
+
+<%=
+  settings_primer_form_with(
+    model: pause_reminders_form_model,
+    scope: "pref[pause_reminders]",
+    url: update_url,
+    method: :patch,
+    data: {
+      turbo: false,
+      controller: "show-when-checked",
+      show_when_checked_visibility_class: "d-none",
+      test_selector: "pause-reminders-form"
+    }
+  ) do |form|
+    render(My::Reminders::PauseRemindersForm.new(form))
+  end
+%>
