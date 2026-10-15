@@ -78,11 +78,15 @@ covenant_fix_priorities! if defined?(covenant_fix_priorities!)
 # --- Type «Запрос» ---
 type = Type.find_by(name: "Запрос") || Type.find_by(name: "Задание") || Type.first
 type.name = "Запрос"
-type.is_default = true
 type.is_milestone = false
-type.is_in_roadmap = false
+type.is_in_roadmap = false if type.respond_to?(:is_in_roadmap=)
+# В OP 17 дефолтный тип — первый по position
+type.position = 1 if type.respond_to?(:position=)
 type.save!
-Type.where.not(id: type.id).update_all(is_default: false)
+# Остальные типы сдвигаем вниз
+Type.where.not(id: type.id).find_each.with_index(2) do |t, pos|
+  t.update_column(:position, pos) if t.respond_to?(:position)
+end
 puts "[covenant-seed] type: #{type.name} (id=#{type.id})"
 
 # --- Custom fields ---
@@ -113,7 +117,14 @@ puts "[covenant-seed] custom fields: #{cfs.map { |c| "#{c.name}(cf_#{c.id})" }.j
 # Attach CFs to type + form configuration
 # assignee (один) убран с формы — вместо него CF «Исполнители» (несколько)
 cf_attrs = cfs.map(&:attribute_name)
-type.custom_field_ids = (type.custom_field_ids + cfs.map(&:id)).uniq
+
+# В OP 17 привязка через ассоциацию, не через custom_field_ids
+if type.respond_to?(:custom_fields=)
+  type.custom_fields = (Array(type.custom_fields) + cfs).uniq
+elsif type.respond_to?(:custom_field_ids=)
+  type.custom_field_ids = (Array(type.custom_field_ids) + cfs.map(&:id)).uniq
+end
+
 type.attribute_groups = [
   ["Запрос",
    %w[subject description status priority due_date] + cf_attrs],
