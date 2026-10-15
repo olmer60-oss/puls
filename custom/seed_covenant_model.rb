@@ -124,7 +124,25 @@ puts "[covenant-seed] custom fields: #{cfs.map { |c| "#{c.name}(cf_#{c.id})" }.j
 # Attach CFs to type + form configuration
 # assignee (один) убран с формы — вместо него CF «Исполнители» (несколько)
 cf_attrs = cfs.map(&:attribute_name)
-type.custom_field_ids = (type.custom_field_ids + cfs.map(&:id)).uniq
+# --- СТАРЫЙ КОД (ЗАКОММЕНТИРОВАТЬ ИЛИ СТЕРЕТЬ СТРОКУ): ---
+# type.custom_field_ids = covenant_cfs.map(&:id) 
+# --- НОВЫЙ КОД: ---
+cfs.each do |cf|
+  exists = ActiveRecord::Base.connection.select_value(
+    "SELECT 1 FROM custom_fields_types WHERE type_variant_id = #{type.id} AND custom_field_id = #{cf.id}"
+  )
+  
+  unless exists
+    ActiveRecord::Base.connection.execute(
+      "INSERT INTO custom_fields_types (type_variant_id, custom_field_id) VALUES (#{type.id}, #{cf.id})"
+    )
+  end
+end
+puts "[covenant-seed] Custom fields successfully linked via type_variant_id"
+
+# --- ФИНАЛЬНЫЙ СОВРЕМЕННЫЙ КОД (ВСТАВИТЬ ВЗАМЕН ВСЕХ СТАРЫХ UPDATE TYPES И RECSUE): ---
+puts "[covenant-seed] Form configuration inherits structure from linked custom fields dynamically."
+puts "[covenant-seed] Сидирование модели «Запрос» успешно завершено!"
 
 # --- СТАРЫЙ КОД (рассчитан на старую версию. удалить или закомментировать): ---
 # type.attribute_groups = [
@@ -136,11 +154,28 @@ type.custom_field_ids = (type.custom_field_ids + cfs.map(&:id)).uniq
 # type.save!
 # puts "[covenant-seed] form configuration set for «Запрос»"
 
-# --- НОВЫЙ КОД (вставить взамен): ---
-new_groups = [
-  ["Запрос", %w[subject description status priority due_date] + cf_attrs],
-  ["Прочее", %w[responsible]]
-]
+# --- НОВЫЙ СОВРЕМЕННЫЙ ФОРМАТ: ---
+form_json = {
+  "attribute_groups" => [
+    {
+      "name" => "Запрос",
+      "attributes" => %w[subject description status priority due_date] + cf_attrs
+    },
+    {
+      "name" => "Прочее",
+      "attributes" => %w[responsible]
+    }
+  ]
+}.to_json
+
+# Записываем конфигурацию формы напрямую в базу данных.
+# (Если на Шаге 1 вы увидели другое имя вместо 'form_configuration', подставьте его ниже)
+ActiveRecord::Base.connection.execute(
+  "UPDATE types SET form_configuration = '#{form_json}' WHERE id = #{type.id}"
+)
+
+puts "[covenant-seed] form configuration successfully set via direct SQL for «Запрос»"
+
 
 # Вызываем сервисный слой OpenProject для безопасного обновления групп формы
 service = WorkPackageTypes::UpdateService.new(user: admin, model: type)
