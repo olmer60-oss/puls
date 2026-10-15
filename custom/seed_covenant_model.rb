@@ -114,14 +114,33 @@ puts "[covenant-seed] custom fields: #{cfs.map { |c| "#{c.name}(cf_#{c.id})" }.j
 # assignee (один) убран с формы — вместо него CF «Исполнители» (несколько)
 cf_attrs = cfs.map(&:attribute_name)
 type.custom_field_ids = (type.custom_field_ids + cfs.map(&:id)).uniq
-type.attribute_groups = [
-  ["Запрос",
-   %w[subject description status priority due_date] + cf_attrs],
-  ["Прочее",
-   %w[responsible]]
+
+# --- СТАРЫЙ КОД (рассчитан на старую версию. удалить или закомментировать): ---
+# type.attribute_groups = [
+#   ["Запрос",
+#    %w[subject description status priority due_date] + cf_attrs],
+#   ["Прочее",
+#    %w[responsible]]
+# ]
+# type.save!
+# puts "[covenant-seed] form configuration set for «Запрос»"
+
+# --- НОВЫЙ КОД (вставить взамен): ---
+new_groups = [
+  ["Запрос", %w[subject description status priority due_date] + cf_attrs],
+  ["Прочее", %w[responsible]]
 ]
-type.save!
-puts "[covenant-seed] form configuration set for «Запрос»"
+
+# Вызываем сервисный слой OpenProject для безопасного обновления групп формы
+service = WorkPackageTypes::UpdateService.new(user: admin, model: type)
+result = service.call(attribute_groups: new_groups)
+
+if result.success?
+  puts "[covenant-seed] form configuration successfully set for «Запрос»"
+else
+  puts "[covenant-seed] ERROR setting form configuration: #{result.errors.full_messages.join(', ')}"
+  exit 1
+end
 
 # --- Workflows: все роли проекта могут ходить между статусами ковенант ---
 covenant_statuses = [st_requested, st_provided, st_rejected]
