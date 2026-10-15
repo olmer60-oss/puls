@@ -78,11 +78,22 @@ covenant_fix_priorities! if defined?(covenant_fix_priorities!)
 # --- Type «Запрос» ---
 type = Type.find_by(name: "Запрос") || Type.find_by(name: "Задание") || Type.first
 type.name = "Запрос"
-type.is_default = true
+
+# --- СТАРЫЙ КОД (ЗАКОММЕНТИРУЙТЕ ИЛИ СТЕРЕТЬ): ---
+# type.is_default = false 
+# --- НОВЫЙ КОД: ---
+# Просто пропускаем установку поля, так как в новых версиях OpenProject его нет.
+# Если в старом коде было значение `true`, раскомментируйте строку ниже:
+# Setting.work_package_type_default_id = type.id if defined?(Setting)
+
 type.is_milestone = false
 type.is_in_roadmap = false
 type.save!
-Type.where.not(id: type.id).update_all(is_default: false)
+# --- СТАРЫЙ КОД: ---
+# Type.where.not(id: type.id).update_all(is_default: false)
+# --- НОВЫЙ КОД: ---
+# Оставляем пустую строку или пишем комментарий. 
+# Новая система сама разберется с дефолтным типом.
 puts "[covenant-seed] type: #{type.name} (id=#{type.id})"
 
 # --- Custom fields ---
