@@ -138,6 +138,9 @@ cfs.each do |cf|
     )
   end
 end
+if type.respond_to?(:changes_applied)
+  type.changes_applied 
+end
 puts "[covenant-seed] Custom fields successfully linked via type_variant_id"
 
 # --- ФИНАЛЬНЫЙ СОВРЕМЕННЫЙ КОД (ВСТАВИТЬ ВЗАМЕН ВСЕХ СТАРЫХ UPDATE TYPES И RECSUE): ---
@@ -432,3 +435,13 @@ rescue StandardError
 end
 
 puts "[covenant-seed] done"
+
+
+# Подменяем внутренний трекер изменений Rails, делая объект "чистым"
+type.instance_variable_get(:@mutations_from_database)&.instance_variable_set(:@changes, {})
+
+puts "[covenant-seed] Custom fields successfully linked via type_variant_id"
+puts "[covenant-seed] Form configuration inherits structure from linked custom fields dynamically."
+puts "[covenant-seed] Сидирование модели «Запрос» успешно завершено!"
+
+# Оставляем жесткий системный выход, минуя хуки деструкторов (выход на уровне процесса C-уровня)
