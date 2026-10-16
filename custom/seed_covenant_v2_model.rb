@@ -1,12 +1,11 @@
 # frozen_string_literal: true
 
-# Seed модели второй системы мониторинга ковенант (v2).
+# Исправленный Seed модели второй системы мониторинга ковенант (v2).
 # Не трогает тип «Запрос» и данные действующего «Пульса».
 #
 # Запуск (из корня репозитория, когда стек поднят):
 #   docker compose exec web bundle exec rails runner /covenant-custom/seed_covenant_v2_model.rb
 #
-# Файл должен лежать в custom/ (том монтируется в /covenant-custom).
 # Идемпотентен: можно перезапускать.
 
 puts "[v2-seed] start"
@@ -48,7 +47,6 @@ def upsert_wp_cf!(name:, field_format:, possible_values: nil, multi_value: false
   cf.searchable   = %w[string text].include?(field_format)
   cf.multi_value  = multi_value
   if possible_values && field_format == "list"
-    # possible_values= создаёт custom_options при первом сохранении
     cf.possible_values = possible_values if cf.custom_options.empty?
   end
   cf.save!
@@ -56,7 +54,6 @@ def upsert_wp_cf!(name:, field_format:, possible_values: nil, multi_value: false
 end
 
 def link_cfs_to_type!(type, cfs)
-  # OP 17: join-таблица custom_fields_types использует type_variant_id
   cfs.each do |cf|
     exists = ActiveRecord::Base.connection.select_value(
       "SELECT 1 FROM custom_fields_types WHERE type_variant_id = #{type.id} AND custom_field_id = #{cf.id}"
@@ -71,9 +68,6 @@ def link_cfs_to_type!(type, cfs)
 end
 
 def set_form_groups!(type, groups)
-  # groups: [ ["Имя группы", %w[attr1 attr2 ...]], ... ]
-  # attr для CF — attribute_name (custom_field_N)
-  # Формат как в seed_covenant_model.rb под OP 17.x
   raw_groups = groups.map do |name, attrs|
     { "name" => name, "attributes" => attrs }
   end
@@ -98,7 +92,6 @@ def set_form_groups!(type, groups)
   else
     begin
       service = WorkPackageTypes::UpdateService.new(user: User.current, model: type)
-      # UpdateService ждёт массив пар [name, attrs], не хеши
       result = service.call(attribute_groups: groups)
       if result.success?
         puts "[v2-seed] form OK «#{type.name}» via UpdateService"
@@ -122,7 +115,6 @@ def ensure_workflows!(type, statuses)
   roles = ProjectRole.all if roles.none?
   roles = roles.distinct
 
-  # OP 17: колонка может быть type_id или type_variant_id
   workflow_type_key = if Workflow.column_names.include?("type_variant_id")
                         :type_variant_id
                       elsif Workflow.column_names.include?("type_id")
@@ -150,9 +142,8 @@ def ensure_workflows!(type, statuses)
 end
 
 # ---------------------------------------------------------------------------
-# 1. Статусы v2 (глобальные; существующие «Запрошен/Предоставлен/Просрочено» не трогаем)
+# 1. Статусы v2
 # ---------------------------------------------------------------------------
-# Не сбрасываем is_default у всех — иначе сломаем тип «Запрос».
 st_awaiting   = upsert_status!(name: "Ожидается",       is_default: false, is_closed: false, color: YELLOW, position: 10)
 st_submitted  = upsert_status!(name: "Сдано",           is_default: false, is_closed: true,  color: GREEN,  position: 11)
 st_overdue    = Status.find_by(name: "Просрочено") ||
@@ -160,7 +151,7 @@ st_overdue    = Status.find_by(name: "Просрочено") ||
 st_placing    = upsert_status!(name: "На размещении",   is_default: false, is_closed: false, color: BLUE,   position: 12)
 st_placed     = upsert_status!(name: "Размещено",       is_default: false, is_closed: true,  color: GREEN,  position: 13)
 
-puts "[v2-seed] statuses: Ожидается, Сдано, Просрочено, На размещении, Размещено"
+puts "[v2-seed] statuses OK"
 
 # ---------------------------------------------------------------------------
 # 2. Типы
@@ -169,12 +160,12 @@ type_covenant  = upsert_type!(name: "Ковенанта",           position: 20
 type_submit    = upsert_type!(name: "Сдача предприятия",   position: 21)
 type_material  = upsert_type!(name: "Материал размещения", position: 22)
 
-puts "[v2-seed] types: #{[type_covenant, type_submit, type_material].map { |t| "#{t.name}(#{t.id})" }.join(', ')}"
+puts "[v2-seed] types OK"
 
 # ---------------------------------------------------------------------------
-# 3. Кастомные поля (не is_for_all — не засоряем форму «Запрос»)
+# 3. Кастомные поля (Скорректировано по ТЗ)
 # ---------------------------------------------------------------------------
-cf_contract     = upsert_wp_cf!(name: "Договор",              field_format: "string")
+cf_contract     = upsert_wp_cf!(name: "Договор",              field_format: "list", possible_values: %w[ДСК ССК Поставка])
 cf_clause_no    = upsert_wp_cf!(name: "№ пункта",             field_format: "string")
 cf_period       = upsert_wp_cf!(name: "Период",               field_format: "string")
 cf_enterprise   = upsert_wp_cf!(name: "Предприятие",          field_format: "list",
@@ -194,13 +185,15 @@ cf_check_result = upsert_wp_cf!(name: "Результат проверки",   f
 cf_fact_submit  = upsert_wp_cf!(name: "Фактическая дата сдачи", field_format: "date")
 cf_fact_place   = upsert_wp_cf!(name: "Фактическая дата размещения", field_format: "date")
 
+cf_co_executors = upsert_wp_cf!(name: "Исполнители предприятия", field_format: "user", multi_value: true)
+
 cfs_covenant = [
   cf_contract, cf_clause_no, cf_frequency, cf_check_method, cf_calc_method,
   cf_threshold, cf_unit, cf_needs_place, cf_contract_due
 ]
 cfs_submit = [
   cf_contract, cf_clause_no, cf_period, cf_enterprise,
-  cf_value, cf_internal_due, cf_check_result, cf_fact_submit
+  cf_value, cf_internal_due, cf_check_result, cf_fact_submit, cf_co_executors
 ]
 cfs_material = [
   cf_contract, cf_clause_no, cf_period,
@@ -213,7 +206,6 @@ link_cfs_to_type!(type_material, cfs_material)
 
 puts "[v2-seed] custom fields linked"
 
-# Формы
 set_form_groups!(type_covenant, [
   ["Ковенанта", %w[subject description status priority] + cfs_covenant.map(&:attribute_name)],
   ["Прочее",    %w[responsible]]
@@ -227,7 +219,6 @@ set_form_groups!(type_material, [
   ["Прочее",     %w[responsible]]
 ])
 
-# Workflows: полный граф внутри набора статусов типа
 ensure_workflows!(type_covenant, [st_awaiting, st_submitted, st_overdue])
 ensure_workflows!(type_submit,   [st_awaiting, st_submitted, st_overdue])
 ensure_workflows!(type_material, [st_placing, st_placed, st_overdue])
@@ -243,10 +234,8 @@ project.workspace_type = "project" if project.respond_to?(:workspace_type=)
 project.enabled_module_names = %w[work_package_tracking activity]
 project.save!
 
-# Подключаем типы v2 (+ оставляем «Запрос», если уже был)
 existing_types = project.types.to_a
 project.types = (existing_types + [type_covenant, type_submit, type_material]).uniq
-# CF проекта: все, что привязаны к типам + is_for_all
 project.work_package_custom_fields = (
   project.work_package_custom_fields.to_a +
   cfs_covenant + cfs_submit + cfs_material +
@@ -264,46 +253,36 @@ member = Member.find_or_initialize_by(project: project, principal: admin)
 member.roles = [role] if member.roles.empty?
 member.save! if member.changed? || member.new_record? || member.member_roles.empty?
 
-puts "[v2-seed] project «#{project.name}» (#{project.identifier})"
+puts "[v2-seed] project «#{project.name}» готов"
 
 # ---------------------------------------------------------------------------
-# 5. Демо-данные: 1 ковенанта → 3 сдачи + 1 материал
+# 5. Демо-данные
 # ---------------------------------------------------------------------------
 def find_or_build_wp(project:, subject:, type:)
   wp = WorkPackage.find_by(project: project, subject: subject)
   wp || WorkPackage.new(project: project, subject: subject, type: type, author: User.current)
 end
 
-def set_cf!(wp, cf, value)
-  return if value.nil?
-  wp.custom_field_values = { cf.id => value }
-end
-
-# --- Ковенанта ---
-cov = find_or_build_wp(
-  project: project,
-  subject: "п. 5.2 — Коэффициент покрытия процентов",
-  type: type_covenant
-)
-cov.description = "Минимальный коэффициент покрытия процентов по итогам квартала. " \
-                  "Источник: договор ДСК, раздел 5. Пример для демонстрации модели v2."
+cov = find_or_build_wp(project: project, subject: "п. 5.2 — Коэффициент покрытия процентов", type: type_covenant)
+cov.description = "Минимальный коэффициент покрытия процентов по итогам квартала. Источник: договор ДСК."
 cov.status   = st_awaiting
 cov.priority = IssuePriority.find_by(name: "Обычный") || IssuePriority.first
 cov.save!
 
-set_cf!(cov, cf_contract,     "ДСК")
-set_cf!(cov, cf_clause_no,    "5.2")
-set_cf!(cov, cf_frequency,    "квартал")
-set_cf!(cov, cf_check_method, "расчёт по отчётности")
-set_cf!(cov, cf_calc_method,  "EBITDA / проценты к уплате")
-set_cf!(cov, cf_threshold,    2.5)
-set_cf!(cov, cf_unit,         "коэф.")
-set_cf!(cov, cf_needs_place,  "1")
-set_cf!(cov, cf_contract_due, Date.new(2026, 5, 15))
+cov.custom_field_values = {
+  cf_contract.id     => "ДСК",
+  cf_clause_no.id    => "5.2",
+  cf_frequency.id    => "квартал",
+  cf_check_method.id => "расчёт по отчётности",
+  cf_calc_method.id  => "EBITDA / проценты к уплате",
+  cf_threshold.id    => 2.5,
+  cf_unit.id         => "коэф.",
+  cf_needs_place.id  => "1",
+  cf_contract_due.id => Date.new(2026, 5, 15)
+}
 cov.save!
-puts "[v2-seed] covenant ##{cov.id} «#{cov.subject}»"
+puts "[v2-seed] covenant ##{cov.id} создана"
 
-# --- Сдачи предприятий ---
 submissions = [
   { ent: "ДСК-1", value: 2.8, status: st_submitted, result: "Соблюдено",
     internal: Date.new(2026, 4, 20), fact: Date.new(2026, 4, 18) },
@@ -317,44 +296,42 @@ submissions.each do |row|
   subj = "Сдача #{row[:ent]} — 2026-Q1 — п. 5.2"
   wp = find_or_build_wp(project: project, subject: subj, type: type_submit)
   wp.parent      = cov
-  wp.description = "Данные предприятия #{row[:ent]} за 2026-Q1 по ковенанте п. 5.2"
+  wp.description = "Данные предприятия #{row[:ent]} за 2026-Q1"
   wp.status      = row[:status]
   wp.priority    = IssuePriority.find_by(name: "Обычный") || IssuePriority.first
   wp.due_date    = row[:internal]
   wp.save!
 
-  set_cf!(wp, cf_contract,     "ДСК")
-  set_cf!(wp, cf_clause_no,    "5.2")
-  set_cf!(wp, cf_period,       "2026-Q1")
-  set_cf!(wp, cf_enterprise,   row[:ent])
-  set_cf!(wp, cf_value,        row[:value])
-  set_cf!(wp, cf_internal_due, row[:internal])
-  set_cf!(wp, cf_check_result, row[:result])
-  set_cf!(wp, cf_fact_submit,  row[:fact])
+  wp.custom_field_values = {
+    cf_contract.id     => "ДСК",
+    cf_clause_no.id    => "5.2",
+    cf_period.id       => "2026-Q1",
+    cf_enterprise.id   => row[:ent],
+    cf_value.id        => row[:value],
+    cf_internal_due.id => row[:internal],
+    cf_check_result.id => row[:result],
+    cf_fact_submit.id  => row[:fact],
+    cf_co_executors.id => [admin.id.to_s]
+  }.reject { |_, v| v.nil? }
   wp.save!
-  puts "[v2-seed] submit ##{wp.id} «#{wp.subject}» → #{row[:status].name}"
+  puts "[v2-seed] submit ##{wp.id} [#{row[:ent]}] → #{row[:status].name}"
 end
 
-# --- Материал для размещения ---
-mat = find_or_build_wp(
-  project: project,
-  subject: "Материал в СберФинлайн — 2026-Q1 — п. 5.2",
-  type: type_material
-)
+mat = find_or_build_wp(project: project, subject: "Материал в СберФинлайн — 2026-Q1 — п. 5.2", type: type_material)
 mat.parent      = cov
-mat.description = "Итоговый пакет по п. 5.2 за 2026-Q1 (свод по предприятиям). Размещение вручную вне системы."
+mat.description = "Итоговый пакет по п. 5.2 за 2026-Q1 (свод по предприятиям)."
 mat.status      = st_placing
 mat.priority    = IssuePriority.find_by(name: "Обычный") || IssuePriority.first
 mat.due_date    = Date.new(2026, 5, 15)
 mat.save!
 
-set_cf!(mat, cf_contract,     "ДСК")
-set_cf!(mat, cf_clause_no,    "5.2")
-set_cf!(mat, cf_period,       "2026-Q1")
-set_cf!(mat, cf_contract_due, Date.new(2026, 5, 15))
+mat.custom_field_values = {
+  cf_contract.id     => "ДСК",
+  cf_clause_no.id    => "5.2",
+  cf_period.id       => "2026-Q1",
+  cf_contract_due.id => Date.new(2026, 5, 15)
+}
 mat.save!
-puts "[v2-seed] material ##{mat.id} «#{mat.subject}»"
+puts "[v2-seed] material ##{mat.id} создан"
 
 puts "[v2-seed] done"
-puts "[v2-seed] UI: проект «ДСК — демо v2» → фильтр по типу «Ковенанта» / «Сдача предприятия» / «Материал размещения»"
-puts "[v2-seed] Откройте карточку ковенанты — дочерние сдачи и материал видны в иерархии."
