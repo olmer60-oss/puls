@@ -40,18 +40,28 @@ end
 
 def upsert_wp_cf!(name:, field_format:, possible_values: nil, multi_value: false, is_for_all: false)
   cf = WorkPackageCustomField.find_by(name: name)
-  cf ||= WorkPackageCustomField.new(name: name, field_format: field_format)
-  cf.field_format = field_format
+  
+  if cf
+    # Если поле уже есть, НЕ трогаем cf.field_format, чтобы не вызывать ошибку Readonly
+    puts "[v2-seed] кастомное поле «#{name}» уже существует, обновляем параметры"
+  else
+    # Формат задаем ТОЛЬКО при создании новой записи
+    cf = WorkPackageCustomField.new(name: name, field_format: field_format)
+  end
+  
   cf.is_for_all   = is_for_all
   cf.is_filter    = true
   cf.searchable   = %w[string text].include?(field_format)
   cf.multi_value  = multi_value
+  
   if possible_values && field_format == "list"
     cf.possible_values = possible_values if cf.custom_options.empty?
   end
+  
   cf.save!
   cf
 end
+
 
 def link_cfs_to_type!(type, cfs)
   cfs.each do |cf|
@@ -234,8 +244,16 @@ project.workspace_type = "project" if project.respond_to?(:workspace_type=)
 project.enabled_module_names = %w[work_package_tracking activity]
 project.save!
 
-existing_types = project.types.to_a
-project.types = (existing_types + [type_covenant, type_submit, type_material]).uniq
+# Было (ломало скрипт):
+# existing_types = project.types.to_a
+# project.types = (existing_types + [type_covenant, type_submit, type_material]).uniq
+
+# Стало (совместимо с OpenProject 17.x):
+[type_covenant, type_submit, type_material].each do |t|
+  pt = project.project_types.find_or_initialize_by(type_id: t.id)
+  pt.save!
+end
+
 project.work_package_custom_fields = (
   project.work_package_custom_fields.to_a +
   cfs_covenant + cfs_submit + cfs_material +
